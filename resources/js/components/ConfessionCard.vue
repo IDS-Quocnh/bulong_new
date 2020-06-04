@@ -9,7 +9,7 @@
                     <div class="flex">
                         <a href="" class="text-teal-600 font-bold mr-1">Pukiungtu</a>
                     </div>
-                    <button class="px-6 text-sm text-white bg-yellow-600 rounded">Follow</button>
+                    <button class="px-6 text-sm text-white bg-gray-500 rounded">Follow</button>
                 </div>
             </div>
             <div>

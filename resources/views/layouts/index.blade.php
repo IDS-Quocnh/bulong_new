@@ -17,23 +17,38 @@
 
 @php
 
-    $listUnread = App\Model\Notification::query()
-                ->leftJoin("users","users.id","=","notifications.from_user_id")
-                ->where("is_read","=",0)
-                ->where("to_user_id","=", auth()->user()->id)
-                ->where("from_user_id","!=", auth()->user()->id)
-                ->orderBy("notifications.id","desc")
-                ->get(['notifications.id','notifications.type', 'notifications.created_at','notifications.confession_id', "users.username"]);
-
-    $listRead = App\Model\Notification::query()
-                ->leftJoin("users","users.id","=","notifications.from_user_id")
-                ->where("is_read","=",1)
-                ->where("to_user_id","=", auth()->user()->id)
-                ->where("from_user_id","!=", auth()->user()->id)
-                ->orderBy("notifications.id","desc")
-                ->get(['notifications.id','notifications.type', 'notifications.created_at','notifications.confession_id', "users.username"]);
+      $online =  App\Model\Online::query()->where("user_id","=",auth()->user()->id)->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+      if(!isset($online)){
+            $stas = App\Model\Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new App\Model\Stat;
+            }
+            $stas->online ++;
+            $stas->save();
+            $online = new App\Model\Online;
+            $online->user_id = auth()->user()->id;
+            $online->save();
+      }
 
 
+        $listUnread = App\Model\Notification::query()
+                    ->leftJoin("users","users.id","=","notifications.from_user_id")
+                    ->where("is_read","=",0)
+                    ->where("to_user_id","=", auth()->user()->id)
+                    ->where("from_user_id","!=", auth()->user()->id)
+                    ->orderBy("notifications.id","desc")
+                    ->get(['notifications.id','notifications.type', 'notifications.created_at','notifications.confession_id', "users.username"]);
+
+        $listRead = App\Model\Notification::query()
+                    ->leftJoin("users","users.id","=","notifications.from_user_id")
+                    ->where("is_read","=",1)
+                    ->where("to_user_id","=", auth()->user()->id)
+                    ->where("from_user_id","!=", auth()->user()->id)
+                    ->orderBy("notifications.id","desc")
+                    ->get(['notifications.id','notifications.type', 'notifications.created_at','notifications.confession_id', "users.username"]);
+
+
+        $categoryList = \App\Model\Categories::all();
 
 @endphp
 <div id="app">
@@ -76,7 +91,7 @@
                                 No notification at this time
                             @else
                             @if(isset($listUnread[0]))
-                            <li class="bg-white fs12 text-green-1 ">
+                            <li class="bg-white fs12 text-green-1 noti-read" style="cursor: pointer">
                                 @php $rItem = $listUnread[0] @endphp
                                 <div class="bg-gray-400 flex pl-2 hover:bg-white noti-read" post-id="{{$rItem->id}}">
                                     @if($rItem->type=="reply-comment")
@@ -96,7 +111,7 @@
                                         <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
                                     @endif
 
-                                    <a href="/post/{{$rItem->confession_id}}" class="py-2 px-2 block">
+                                    <a h class="py-2 px-2 block">
                                         <span class="text-green-1">{{$rItem->username}}</span>
 
                                         @if($rItem->type=="reply-comment")
@@ -121,7 +136,7 @@
                             </li>
                             @endif
                             @if(isset($listUnread[1]))
-                            <li class="bg-white fs12 text-green-1 ">
+                            <li class="bg-white fs12 text-green-1 noti-read" style="cursor: pointer">
                                 @php $rItem = $listUnread[1] @endphp
                                 <div class="bg-gray-400 flex pl-2 hover:bg-white noti-read" post-id="{{$rItem->id}}">
                                     @if($rItem->type=="reply-comment")
@@ -141,7 +156,7 @@
                                         <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
                                     @endif
 
-                                    <a href="/post/{{$rItem->confession_id}}" class="py-2 px-2 block">
+                                    <a h class="py-2 px-2 block">
                                         <span class="text-green-1">{{$rItem->username}}</span>
 
                                         @if($rItem->type=="reply-comment")
@@ -171,7 +186,7 @@
                                 </p>
                             </li>
                                 @if(isset($listRead[0]))
-                            <li class="bg-white fs12 text-green-1 hover:bg-gray-400">
+                            <li class="bg-white fs12 text-green-1 hover:bg-gray-400 noti-read" style="cursor: pointer">
                                 @php $rItem = $listRead[0] @endphp
                                 <div class="flex pl-2 hover:bg-gray-400" post-id="{{$rItem->id}}">
                                     @if($rItem->type=="reply-comment")
@@ -191,7 +206,7 @@
                                         <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
                                     @endif
 
-                                    <a href="/post/{{$rItem->confession_id}}" class="py-2 px-2 block">
+                                    <a h class="py-2 px-2 block">
                                         <span class="text-green-1">{{$rItem->username}}</span>
 
                                         @if($rItem->type=="reply-comment")
@@ -216,7 +231,7 @@
                             </li>
                             @endif
                             @if(isset($listRead[1]))
-                            <li class="bg-white fs12 text-green-1 hover:bg-gray-400">
+                            <li class="bg-white fs12 text-green-1 hover:bg-gray-400 noti-read" style="cursor: pointer">
                                 @php $rItem = $listRead[1] @endphp
                                 <div class="flex pl-2 hover:bg-gray-400" post-id="{{$rItem->id}}">
                                     @if($rItem->type=="reply-comment")
@@ -236,7 +251,7 @@
                                         <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
                                     @endif
 
-                                    <a href="/post/{{$rItem->confession_id}}" class="py-2 px-2 block">
+                                    <a h class="py-2 px-2 block">
                                         <span class="text-green-1">{{$rItem->username}}</span>
 
                                         @if($rItem->type=="reply-comment")
@@ -303,109 +318,120 @@
             </div>
         </div>
     </header>
-    <div style="max-width: 1360px" class="mr-auto">
-        <div class="flex justify-between lg:px-4 pt-16" style="width: 1360px;height: 100vh; overflow: hidden">
-        <div class="w-3/12 hidden lg:block" style="max-width: 250px">
-            <aside class="sticky top-0 overflow-y-auto left-bar disable-scrollbars scroll-wrapper" style="width: 250px;height:100vh; overflow: scroll">
-                <a href="{{route('user',Auth::user()->username)}}" >
-                    <div class="flex flex-col justify-center items-center">
-                        <img src="/{{Auth::user()->avatar}}"
-                             class="h-10 w-10 rounded-full">
-                        <h1 class="mt-1 text-gray-700 mb-1">{{Auth::user()->username}}</h1>
-                    </div>
-                </a>
-                <div class="mt-3 pt-3 pr-6 pl-3 border rounded bg-white">
-                    <a href="{{route('user',Auth::user()->username)}}" class="mb-3 flex items-center">
-                        <img
-                            src="/public/allimage/message-in-a-bottle.png" class="mr-3 w-8 h-8">
-                        <h2 class="text-gray-600">My Confessions</h2>
-                    </a>
-                    <a
-                        href="{{route('my-felt-confession')}}" class="mb-3 flex items-center">
-                        <img
-                            src="/public/allimage/love-letter.png" class="mr-3 w-8 h-8">
-                        <h2 class="text-gray-600">My Felt Confessions</h2>
-                    </a>
-                    <a
-                        href="/followings" class="mb-3 flex items-center">
-                        <img
-                            src="/public/allimage/follower.png" class="mr-3 w-8 h-8">
-                        @php
-                            $following = App\Model\User::query()
-                            ->join("follower", "users.id","=","follower.user_follow_id")
-                            ->where('user_id','=',auth()->user()->id)
-                            ->get();
-                        @endphp
 
-                        <h2 class="text-gray-600">Following [{{sizeof($following)}}]</h2>
-                    </a>
-                    <a
-                        href="/followers" class="mb-3 flex items-center">
-                        <img
-                            src="/public/allimage/user.png" class="mr-3 w-8 h-8">
-                        @php
-                            $follower = App\Model\User::query()
-                            ->join("follower", "users.id","=","follower.user_id")
-                            ->where('user_follow_id','=',auth()->user()->id)
-                            ->get();
-                        @endphp
-                        <h2 class="text-gray-600">Followers [{{sizeof($follower)}}]</h2>
-                    </a>
-                </div>
-                <div class="mt-3 flex flex-col text-gray-600 border rounded bg-white">
-                    @php
-                        $categoryList = \App\Model\Categories::all();
-                    @endphp
-                    <h3 class="text-gray-700 mb-4 px-6 mt-3 ">Categories</h3>
-                    @foreach($categoryList as $item)
-                        <a
-                            href="/category/{{$item->slug}}"
-                            class="px-3 mb-3 flex">
-                            <img src="/{{$item->image}}"
-                                 class="mr-3 w-8 h-8">
-                            <h2>{{$item->name}}</h2>
-                        </a>
-                    @endforeach
-                </div>
-            </aside>
+    <aside class="sticky top-0 overflow-y-auto left-bar disable-scrollbars scroll-wrapper" style="left:45px; position: fixed; width: 250px;height:100vh; overflow: scroll">
+        <div style="height: 60px"></div>
+        <a href="{{route('user',Auth::user()->username)}}" >
+            <div class="flex flex-col justify-center items-center">
+                <img src="/{{Auth::user()->avatar}}"
+                     class="h-10 w-10 rounded-full">
+                <h1 class="mt-1 text-gray-700 mb-1">{{Auth::user()->username}}</h1>
+            </div>
+        </a>
+        <div class="mt-3 pt-3 pr-6 pl-3 border rounded bg-white">
+            <a href="{{route('user',Auth::user()->username)}}" class="mb-3 flex items-center">
+                <img
+                    src="/public/allimage/message-in-a-bottle.png" class="mr-3 w-8 h-8">
+                <h2 class="text-gray-600">My Confessions</h2>
+            </a>
+            <a
+                href="{{route('my-felt-confession')}}" class="mb-3 flex items-center">
+                <img
+                    src="/public/allimage/love-letter.png" class="mr-3 w-8 h-8">
+                <h2 class="text-gray-600">My Felt Confessions</h2>
+            </a>
+            <a
+                href="/followings" class="mb-3 flex items-center">
+                <img
+                    src="/public/allimage/follower.png" class="mr-3 w-8 h-8">
+                @php
+                    $following = App\Model\User::query()
+                    ->join("follower", "users.id","=","follower.user_follow_id")
+                    ->where('user_id','=',auth()->user()->id)
+                    ->get();
+                @endphp
+
+                <h2 class="text-gray-600">Following [{{sizeof($following)}}]</h2>
+            </a>
+            <a
+                href="/followers" class="mb-3 flex items-center">
+                <img
+                    src="/public/allimage/user.png" class="mr-3 w-8 h-8">
+                @php
+                    $follower = App\Model\User::query()
+                    ->join("follower", "users.id","=","follower.user_id")
+                    ->where('user_follow_id','=',auth()->user()->id)
+                    ->get();
+                @endphp
+                <h2 class="text-gray-600">Followers [{{sizeof($follower)}}]</h2>
+            </a>
         </div>
-        <div class="pr-5 pt-2 scroll-wrapper-c disable-scrollbars" style="margin-left: 15px;height: 100vh; overflow: scroll; padding-top: 60px">
+        <div class="mt-3 flex flex-col text-gray-600 border rounded bg-white">
+
+            <h3 class="text-gray-700 mb-4 px-6 mt-3 ">Categories</h3>
+            @foreach($categoryList as $item)
+                <a
+                    href="/category/{{$item->slug}}"
+                    class="px-3 mb-3 flex">
+                    <img src="/{{$item->image}}"
+                         class="mr-3 w-8 h-8">
+                    <h2>{{$item->name}}</h2>
+                </a>
+            @endforeach
+        </div>
+    </aside>
+
+    <aside class="sticky top-0 overflow-y-auto right-bar disable-scrollbars scroll-wrapper-r" style="position:fixed;height:100vh; right:15px;overflow: scroll">
+        <div style="height: 60px; font-family:  "></div>
+        <div class="text-center">
+        </div>
+        @php
+            $ads = App\Model\Ads::find(0);
+        @endphp
+        <div style="width:300px; height: 250px; overflow: hidden">
+            {!!html_entity_decode($ads->right_panel_ad)!!}
+        </div>
+        <div class="flex flex-col mt-3" style="width: 250px">
+            <div class="py-2 pr-6 text-gray-700 border-2 bg-white rounded border">
+                @php
+                    $hashtagList = \App\Model\Hashtag::orderBy('count', 'desc')->limit(10)->get();
+                @endphp
+                <h7 class="text-gray-600 mb-4 px-6 mt-4 font-bold" >Trending Hashtags</h7>
+                <ul>
+                    @foreach($hashtagList as $item)
+                        <li><a href="/search-hashtag/{{$item->name}}"
+                               class="mb-4 px-6"># {{$item->name}}</a></li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="mt-3 text-gray-600 fs12"><a
+                    href="/category/corporis-sed-sit-rerum-omnis">About Us</a>-
+                <a href="/category/corporis-sed-sit-rerum-omnis">Privacy</a>-
+                <a href="/category/corporis-sed-sit-rerum-omnis">Cookie</a>-
+                <a href="/category/corporis-sed-sit-rerum-omnis">Policy</a>-
+                <a href="/category/corporis-sed-sit-rerum-omnis">Terms</a>-
+                <a href="/category/corporis-sed-sit-rerum-omnis">Contact</a>-
+                <a href="/category/corporis-sed-sit-rerum-omnis">Advertise with
+                    Us</a>-
+            </div>
+            <div class="mt-1 text-gray-600">
+                <div class="fs12">© 2020 Bulong</div>
+            </div>
+            <div class="mt-0"><img src="/public/allimage/bulongappcomingsoon.png" style="width: 180px" class="mb-2"> </div>
+        </div>
+    </aside>
+
+    <div style="max-width: 1360px" class="mr-auto">
+        <div class="flex justify-between lg:px-4 pt-16" style="width: 1360px;overflow: hidden">
+        <div class="w-3/12 hidden lg:block" style="max-width: 250px">
+
+        </div>
+        <div class="pr-5 pt-2" style="margin-left: 15px; padding-top: 60px">
             @yield('content')
         </div>
-        <div class="pb-4 w-3/12 hidden lg:block " style="max-width: 620px;">
-            <aside class="sticky top-0 overflow-y-auto right-bar disable-scrollbars scroll-wrapper-r" style="height: 100vh ;overflow: scroll">
-                <div class="text-center">
-                </div>
-                <div><img src="/public/allimage/ads.png" class="/" style="width: 300px;height: 250px"></div>
-                <div class="flex flex-col mt-3" style="width: 250px">
-                    <div class="py-2 pr-6 text-gray-700 border-2 bg-white rounded border">
-                        @php
-                            $hashtagList = \App\Model\Hashtag::orderBy('count', 'desc')->limit(10)->get();
-                        @endphp
-                        <h7 class="text-gray-600 mb-4 px-6 mt-4 font-bold" >Trending Hashtags</h7>
-                        <ul>
-                            @foreach($hashtagList as $item)
-                                <li><a href="/search-hashtag/{{$item->name}}"
-                                       class="mb-4 px-6"># {{$item->name}}</a></li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="mt-3 text-gray-600 fs12"><a
-                            href="/category/corporis-sed-sit-rerum-omnis">About Us</a>-
-                        <a href="/category/corporis-sed-sit-rerum-omnis">Privacy</a>-
-                        <a href="/category/corporis-sed-sit-rerum-omnis">Cookie</a>-
-                        <a href="/category/corporis-sed-sit-rerum-omnis">Policy</a>-
-                        <a href="/category/corporis-sed-sit-rerum-omnis">Terms</a>-
-                        <a href="/category/corporis-sed-sit-rerum-omnis">Contact</a>-
-                        <a href="/category/corporis-sed-sit-rerum-omnis">Advertise with
-                            Us</a>-
-                    </div>
-                    <div class="mt-1 text-gray-600">
-                        <div class="fs12">© 2020 Bulong</div>
-                    </div>
-                    <div class="mt-0"><img src="/public/allimage/bulongappcomingsoon.png" style="width: 180px" class="mb-2"> </div>
-                </div>
-            </aside>
+        <div class="pb-4 w-3/12 hidden lg:block " style=" max-width: 620px;">
+
+
         </div>
     </div>
     </div>
@@ -473,37 +499,31 @@
                 </div>
             </div>
 
-            <div class="bgPicker bg-selector bg-white" id="bgPicker-e" style="width: 300px; height: 300px; z-index: 1051; top: 235px; left: -300px; display: block;">
-                <div class="sections" style="height: 260px;">
-                    <section class="search p-2">
-                        <input type="search" placeholder="Search..." style="width:100%" class="border rounded bg-search">
-                        <div class="wrap" style="display:none;"><h1>Search Results</h1></div>
-                    </section>
+            @php
+                $colorList = \App\Model\BgImageColors::orderBy('id', 'asc')->limit(100)->get();
+                $bgImageList = \App\Model\BgImage::orderBy('id', 'asc')->limit(100)->get();
+            @endphp
+            <div class="bgPicker bg-selector bg-white" id="bgPicker-e" style="width: 380px; height: 430px; z-index: 1051; top: 200px; left: -380px; display: block;">
+                <div class="sections disable-scrollbars scroll-wrapper-t" style="height: 430px; overflow: scroll" >
+                    <div style="min-width: 330px; width: 360px">
+                        <section class="search p-2">
+                            <input type="search" placeholder="Search..." style="width:100%" class="border rounded bg-search">
+                            <div class="wrap" style="display:none;"><h1>Search Results</h1></div>
+                        </section>
                         <div class="text-gray-600 fs15 pl-2 pb-2"> Colors</div>
-                        <div style="width:100%; overflow-x: scroll;overflow-y: hidden">
-                            <div class="px-2 flex pb-2" style="min-height: 65px">
-                                @php
-                                    $colorList = \App\Model\BgImageColors::orderBy('id', 'asc')->limit(100)->get();
-                                @endphp
-                                @foreach($colorList as $itemcolor)
-                                    <img src="/{{$itemcolor->image}}" tag="{{$itemcolor->tag}}">
-                                @endforeach
-                            </div>
+                        <div class="px-2 pb-2" style="min-height: 65px">
+                            @foreach($colorList as $itemcolor)
+                                <img class="inline-block pt-2" src="/{{$itemcolor->image}}" tag="{{$itemcolor->tag}}">
+                            @endforeach
                         </div>
-                    <div style="min-height: 65px">
+
                         <div class="text-gray-600 fs15 pl-2 py-2"> Images</div>
-                        <div style="width:100%; overflow-x: scroll;overflow-y: hidden">
-                            <div class="px-2 flex pb-2" style="min-height: 65px">
-                                @php
-                                    $bgImageList = \App\Model\BgImage::orderBy('id', 'asc')->limit(100)->get();
-                                @endphp
-                                @foreach($bgImageList as $itembg)
-                                    <img src="/{{$itembg->image}}" tag="{{$itembg->tag}}">
-                                @endforeach
-                            </div>
+                        <div class="px-2 pb-2" style="min-height: 65px">
+                            @foreach($bgImageList as $itembg)
+                                <img class="inline-block pt-2" src="/{{$itembg->image}}" tag="{{$itembg->tag}}">
+                            @endforeach
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -744,30 +764,27 @@
                 </div>
             </div>
 
-            <div class="bgPicker bg-selector bg-white" id="bgPicker-e" style="width: 300px; height: 300px; z-index: 1051; top: 235px; left: -300px; display: block;">
-                <div class="sections" style="height: 260px;">
+            <div class="bgPicker bg-selector bg-white" id="bgPicker-e" style="width: 380px; height: 430px; z-index: 1051; top: 200px; left: -380px; display: block;">
+                <div class="sections disable-scrollbars scroll-wrapper-t" style="height: 430px; overflow: scroll" >
+                    <div style="min-width: 330px; width: 360px">
                     <section class="search p-2">
                         <input type="search" placeholder="Search..." style="width:100%" class="border rounded bg-search">
                         <div class="wrap" style="display:none;"><h1>Search Results</h1></div>
                     </section>
                     <div class="text-gray-600 fs15 pl-2 pb-2"> Colors</div>
-                    <div style="width:100%; overflow-x: scroll;overflow-y: hidden">
-                        <div class="px-2 flex pb-2" style="min-height: 65px">
+                        <div class="px-2 pb-2" style="min-height: 65px">
                             @foreach($colorList as $itemcolor)
-                            <img src="/{{$itemcolor->image}}" tag="{{$itemcolor->tag}}">
+                            <img class="inline-block pt-2" src="/{{$itemcolor->image}}" tag="{{$itemcolor->tag}}">
                             @endforeach
                         </div>
-                    </div>
 
                     <div class="text-gray-600 fs15 pl-2 py-2"> Images</div>
-                    <div style="width:100%; overflow-x: scroll;overflow-y: hidden">
-                        <div class="px-2 flex pb-2" style="min-height: 65px">
+                        <div class="px-2 pb-2" style="min-height: 65px">
                             @foreach($bgImageList as $itembg)
-                                <img src="/{{$itembg->image}}" tag="{{$itembg->tag}}">
+                                <img class="inline-block pt-2" src="/{{$itembg->image}}" tag="{{$itembg->tag}}">
                             @endforeach
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -829,7 +846,11 @@
 <input type="hidden" id="newBg"/>
 <input type="hidden" id="newCategory"/>
 <input type="hidden" id="newSlug"/>
-
+<div id="center-ads" style="display:none">
+    <div class="center-ads-wrapper">
+        {!!html_entity_decode($ads->center_ad)!!}
+    </div>
+</div>
 <style>
     .ss-wrapper {
         overflow : hidden;
@@ -916,10 +937,76 @@
     $(document).ready(function(e) {
         setTimeout(function(){
             $("#popUpMessage").modal("toggle");
-        }, 1000);
+            var str = $("#center-ads").html();
+            alert();
+            $(".ads-lack").after("<p>sssssss</p>");
+        }, 800);
 
     });
     @endif
+    var token = $("[name='_token']").first().val();
+    $(".poll1-click").click(function(){
+        var poll = $(this).closest(".bulong-poll");
+        var count1 = parseInt(poll.attr("poll1"))+1;
+        var count2 = parseInt(poll.attr("poll2"));
+        $(this).find(".percentbar").first().show();
+        var per1 = Math.floor(count1 / (count1+count2) * 100);
+        $(this).find(".percentbar").first().css("width",per1 + "%");
+        poll.find(".numo1").first().html(per1 + "%");
+        poll.find(".numo1").first().show();
+
+        poll.find(".percentbar-right").first().show();
+        var per2 = 100-per1;
+        poll.find(".percentbar-right").first().css("width",per2 + "%");
+        poll.find(".numo2").first().html(per2 + "%");
+        poll.find(".numo2").first().show();
+
+        poll.find(".poll1-click").first().unbind( "click");
+        poll.find(".poll1-click").first().css("cursor","text");
+        poll.find(".poll2-click").first().unbind( "click");
+        poll.find(".poll2-click").first().css("cursor","text");
+
+        $.post("/poll/rate",
+            {
+                _token: token,
+                id: $(this).attr("poll-id"),
+                select: 1
+            },
+            function (data, status) {
+            });
+    });
+
+    $(".poll2-click").click(function(){
+        var poll = $(this).closest(".bulong-poll");
+        var count1 = parseInt(poll.attr("poll1"));
+        var count2 = parseInt(poll.attr("poll2"))+1;
+        $(this).find(".percentbar").first().show();
+
+        $(this).find(".percentbar-right").first().show();
+        var per2 = Math.floor(count2 / (count1+count2) * 100);
+        $(this).find(".percentbar-right").first().css("width",per2 + "%");
+        poll.find(".numo2").first().html(per2 + "%");
+        poll.find(".numo2").first().show();
+
+        var per1 = 100-per2;
+        poll.find(".percentbar").first().css("width",per1 + "%");
+        poll.find(".numo1").first().html(per1 + "%");
+        poll.find(".numo1").first().show();
+
+        poll.find(".poll1-click").first().unbind( "click");
+        poll.find(".poll1-click").first().css("cursor","text");
+        poll.find(".poll2-click").first().unbind( "click");
+        poll.find(".poll2-click").first().css("cursor","text");
+
+        $.post("/poll/rate",
+            {
+                _token: token,
+                id: $(this).attr("poll-id"),
+                select: 2
+            },
+            function (data, status) {
+            });
+    });
 
     $("#deleteConfession").click(function(){
         if (confirm('Are you sure to delete this post?')) {
@@ -1032,6 +1119,17 @@
         $(".modal-backdrop.fade.show").remove();
     }
 
+
+    $(".share-button").mousedown(function(){
+        var token = $("[name='_token']").first().val();
+        $.post("/share/add",
+            {
+                _token: token,
+            },
+            function(data, status){
+            });
+    });
+
     $("#shareConfession").click(function(){
         $("#shareModal").modal('toggle');
         $('#editConfessionCancle').click();
@@ -1045,7 +1143,7 @@
         $.post("/report/add",
             {
                 _token: token,
-                report_details: $("#report_details").val(),
+                report_details: $("#details").val(),
                 report_reason: $("#report_reason").val(),
                 confession_id: $("#confession_id").val(),
             },
@@ -1214,6 +1312,9 @@
 
         let scrollDiv = document.querySelector(".scroll-wrapper");
         SimpleScrollbar.initEl(scrollDiv);
+
+        let scrollDiv_t = document.querySelector(".scroll-wrapper-t");
+        SimpleScrollbar.initEl(scrollDiv_t);
 
         let scrollDiv_r = document.querySelector(".scroll-wrapper-r");
         SimpleScrollbar.initEl(scrollDiv_r);
@@ -1406,6 +1507,19 @@
                 $(this).show();
             }
         });
+    });
+
+    $(".noti-read").click(function(){
+        var id = $(this).attr("post-id");
+        var token = $("[name='_token']").first().val();
+        $.post("/read-noti",
+            {
+                _token: token,
+                post_id: id,
+            },
+            function(data, status){
+                window.location='/post/' + id;
+            });
     });
 </script>
 </body>

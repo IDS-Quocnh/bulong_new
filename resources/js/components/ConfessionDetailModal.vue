@@ -14,8 +14,8 @@
                             <div class="flex items-center">
                                 <a :href="'/user/' + confession.username" class="text-teal-600 font-bold mr-1">{{ confession.username }}</a>
                                 <div v-if="$gate.userId() != confession.user.id">
-                                    <button @click.prevent="followUser(confession)" class="px-6 text-sm text-white bg-yellow-600 rounded" v-if="!isFollowing">Follow</button>
-                                    <button @click.prevent="followUser(confession)" class="px-6 text-sm text-white bg-gray-600 rounded" v-if="isFollowing">Unfollow</button>
+                                    <button @click.prevent="followUser(confession)" class="px-6 text-sm text-white bg-gray-500 rounded" v-if="!isFollowing">Follow</button>
+                                    <button @click.prevent="followUser(confession)" class="px-6 text-sm text-white bg-gray-500 rounded" v-if="isFollowing">Unfollow</button>
                                 </div>
                             </div>
                         </div>

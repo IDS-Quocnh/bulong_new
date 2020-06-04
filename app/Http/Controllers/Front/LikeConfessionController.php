@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Model\Comment;
 use App\Model\Confession;
 use App\Model\Notification;
+use App\Model\Stat;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Notifications\FeltConfession;
@@ -52,6 +53,14 @@ class LikeConfessionController extends Controller
                     ->first();
                 $notification->delete();
             }
+
+            $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new Stat;
+            }
+            $stas->feel_today --;
+            $stas->save();
+
         }else{
             $like = new Like;
             $like->user_id = auth()->user()->id;
@@ -60,6 +69,13 @@ class LikeConfessionController extends Controller
             $like->save();
             $confession->like_count ++;
             $confession->save();
+
+            $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new Stat;
+            }
+            $stas->feel_today ++;
+            $stas->save();
 
             if($confession->user_id != auth()->user()->id) {
                 $notification = new Notification;
@@ -95,6 +111,12 @@ class LikeConfessionController extends Controller
                     ->first();
 
             $notification->delete();
+            $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new Stat;
+            }
+            $stas->feel_today --;
+            $stas->save();
             }
         }else{
             $like = new Like;
@@ -113,6 +135,12 @@ class LikeConfessionController extends Controller
                 $notification->confession_id = $confession->id;
                 $notification->save();
             }
+            $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new Stat;
+            }
+            $stas->feel_today ++;
+            $stas->save();
 
         }
     }

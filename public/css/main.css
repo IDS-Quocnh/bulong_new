@@ -15645,6 +15645,10 @@ textarea {
   vertical-align:middle;
 }
 
+input {
+  outline: none !important;
+}
+
 textarea {
   border: none;
   overflow: auto;

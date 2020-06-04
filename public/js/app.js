@@ -62524,7 +62524,7 @@ var render = function() {
                         "button",
                         {
                           staticClass:
-                            "px-6 text-sm text-white bg-yellow-600 rounded",
+                            "px-6 text-sm text-white bg-gray-500 rounded",
                           on: {
                             click: function($event) {
                               $event.preventDefault()
@@ -62541,7 +62541,7 @@ var render = function() {
                         "button",
                         {
                           staticClass:
-                            "px-6 text-sm text-white bg-gray-600 rounded",
+                            "px-6 text-sm text-white bg-gray-500 rounded",
                           on: {
                             click: function($event) {
                               $event.preventDefault()
@@ -62790,7 +62790,7 @@ var render = function() {
                                   "button",
                                   {
                                     staticClass:
-                                      "px-6 text-sm text-white bg-yellow-600 rounded",
+                                      "px-6 text-sm text-white bg-gray-500 rounded",
                                     on: {
                                       click: function($event) {
                                         $event.preventDefault()
@@ -62807,7 +62807,7 @@ var render = function() {
                                   "button",
                                   {
                                     staticClass:
-                                      "px-6 text-sm text-white bg-gray-600 rounded",
+                                      "px-6 text-sm text-white bg-gray-500 rounded",
                                     on: {
                                       click: function($event) {
                                         $event.preventDefault()
@@ -63010,7 +63010,7 @@ var render = function() {
                                     "button",
                                     {
                                       staticClass:
-                                        "px-6 text-sm text-white bg-yellow-600 rounded",
+                                        "px-6 text-sm text-white bg-gray-500 rounded",
                                       on: {
                                         click: function($event) {
                                           $event.preventDefault()
@@ -63027,7 +63027,7 @@ var render = function() {
                                     "button",
                                     {
                                       staticClass:
-                                        "px-6 text-sm text-white bg-gray-600 rounded",
+                                        "px-6 text-sm text-white bg-gray-500 rounded",
                                       on: {
                                         click: function($event) {
                                           $event.preventDefault()
@@ -65922,7 +65922,7 @@ var render = function() {
                             "button",
                             {
                               staticClass:
-                                "px-6 follow-wrapper no-glow text-sm text-white bg-yellow-600 rounded",
+                                "px-6 follow-wrapper no-glow text-sm text-white bg-gray-500 rounded",
                               attrs: {
                                 "is-follow": "1",
                                 id: "button-follow-" + _vm.item.id,
@@ -65942,7 +65942,7 @@ var render = function() {
                             "button",
                             {
                               staticClass:
-                                "px-6 follow-wrapper no-glow text-sm text-white bg-yellow-600 rounded",
+                                "px-6 follow-wrapper no-glow text-sm text-white bg-gray-500 rounded",
                               attrs: {
                                 "is-follow": "0",
                                 id: "button-follow-" + _vm.item.id,
@@ -66613,7 +66613,7 @@ var render = function() {
                     }
                   ],
                   staticClass: "mb-3 p-2  border-2 rounded placedatepicker",
-                  staticStyle: { width: "252px" },
+                  staticStyle: { width: "252px", "padding-right": "30px" },
                   attrs: { type: "date" },
                   domProps: { value: _vm.form.birthday },
                   on: {
@@ -68003,7 +68003,7 @@ var render = function() {
                   "button",
                   {
                     staticClass:
-                      "my-1 px-6 text-sm text-white bg-yellow-600 rounded",
+                      "my-1 px-6 text-sm text-white bg-gray-500 rounded",
                     on: {
                       click: function($event) {
                         $event.preventDefault()
@@ -68020,7 +68020,7 @@ var render = function() {
                   "button",
                   {
                     staticClass:
-                      "my-1 px-6 text-sm text-white bg-gray-600 rounded",
+                      "my-1 px-6 text-sm text-white bg-gray-500 rounded",
                     on: {
                       click: function($event) {
                         $event.preventDefault()

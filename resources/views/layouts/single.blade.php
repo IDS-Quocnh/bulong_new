@@ -16,6 +16,27 @@
     <script type="text/javascript" src="{{ asset('public/js/jquery-3.x-git.min.js') }}"></script>
 
 </head>
+@php
+
+    $listUnread = App\Model\Notification::query()
+                ->leftJoin("users","users.id","=","notifications.from_user_id")
+                ->where("is_read","=",0)
+                ->where("to_user_id","=", auth()->user()->id)
+                ->where("from_user_id","!=", auth()->user()->id)
+                ->orderBy("notifications.id","desc")
+                ->get(['notifications.id','notifications.type', 'notifications.created_at','notifications.confession_id', "users.username"]);
+
+    $listRead = App\Model\Notification::query()
+                ->leftJoin("users","users.id","=","notifications.from_user_id")
+                ->where("is_read","=",1)
+                ->where("to_user_id","=", auth()->user()->id)
+                ->where("from_user_id","!=", auth()->user()->id)
+                ->orderBy("notifications.id","desc")
+                ->get(['notifications.id','notifications.type', 'notifications.created_at','notifications.confession_id', "users.username"]);
+
+
+
+@endphp
 <body style="" cz-shortcut-listen="true" class="fs14 bg-main">
 <div id="app">
     @if(!isset($windowMode))
@@ -40,7 +61,7 @@
                             <div class="text-3xl relative inline">
                                 <img src="/public/allimage/ring.png" style="height: 22px"/>
                                 <span
-                                    class="absolute t-0 r-0 -ml-4 mt-2 bg-gray-600 h-4 w-4 rounded-full text-xs text-center text-white" style="top:-10px;right: -25px">0</span>
+                                    class="absolute t-0 r-0 -ml-4 mt-2 bg-gray-600 h-4 w-4 rounded-full text-xs text-center text-white fs11" style="top:-10px;right: -25px">{{sizeof($listUnread) <100 ? sizeof($listUnread) : "99"}}</span>
                             </div>
                         </a>
                         <ul class="dropdown-menu text-green-1 dropdown-menu-center" style="background-color: #F3F3F3; width: 250px;word-wrap: break-word">
@@ -51,60 +72,195 @@
                                     <span class="fs16">Unread</span>
                                 </p>
                             </li>
-                            <li class="bg-white fs12 text-green-1 ">
-                                <div class="bg-gray-400 flex pl-2 hover:bg-white">
-                                    <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
-                                    <a href="/category/corporis-sed-sit-rerum-omnis#" class="py-2 px-2 block">
-                                        <span class="text-green-1">hoe_shop</span>
-                                        <span>replied to your comment on this</span>
+                            @if(sizeof($listUnread) == 0 && sizeof($listRead) == 0)
+                                No notification at this time
+                            @else
+                                @if(isset($listUnread[0]))
+                                    <li class="bg-white fs12 text-green-1 noti-read" style="cursor: pointer">
+                                        @php $rItem = $listUnread[0] @endphp
+                                        <div class="bg-gray-400 flex pl-2 hover:bg-white noti-read" post-id="{{$rItem->id}}">
+                                            @if($rItem->type=="reply-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="post-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="mention")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="comment-like")
+                                                <img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            @if($rItem->type=="post-like")
+                                                <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            <a h class="py-2 px-2 block">
+                                                <span class="text-green-1">{{$rItem->username}}</span>
+
+                                                @if($rItem->type=="reply-comment")
+                                                    <span class="ml-2">replied to your comment on this
+                                        @endif
+                                                        @if($rItem->type=="post-comment")
+                                                            <span class="ml-2"> commented your
+                                        @endif
+                                                                @if($rItem->type=="mention")
+                                                                    <span class="ml-2"> mentioned you on this
+                                        @endif
+                                                                        @if($rItem->type=="comment-like")
+                                                                            <span class="ml-2"> like your comment on this
+                                        @endif
+
+                                                                                @if($rItem->type=="post-like")
+                                                                                    <span class="ml-2">like your
+                                        @endif
                                         <span class="text-green-1">confession</span>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="bg-white fs12 text-green-1" style="margin-top: 1px">
-                                <div class="bg-gray-400 flex pl-2 hover:bg-white">
-                                    <img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
-                                    <a href="/category/corporis-sed-sit-rerum-omnis#" class="py-2 px-2 block">
-                                        <span class="text-green-1">Najirul</span>
-                                        <span>and</span>
-                                        <span class="text-green-1">Sasha_G</span>
-                                        <span>liked your</span>
+                                            </a>
+                                        </div>
+                                    </li>
+                                @endif
+                                @if(isset($listUnread[1]))
+                                    <li class="bg-white fs12 text-green-1 noti-read" style="cursor: pointer">
+                                        @php $rItem = $listUnread[1] @endphp
+                                        <div class="bg-gray-400 flex pl-2 hover:bg-white noti-read" post-id="{{$rItem->id}}">
+                                            @if($rItem->type=="reply-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="post-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="mention")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="comment-like")
+                                                <img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            @if($rItem->type=="post-like")
+                                                <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            <a h class="py-2 px-2 block">
+                                                <span class="text-green-1">{{$rItem->username}}</span>
+
+                                                @if($rItem->type=="reply-comment")
+                                                    <span class="ml-2">replied to your comment on this
+                                        @endif
+                                                        @if($rItem->type=="post-comment")
+                                                            <span class="ml-2"> commented your
+                                        @endif
+                                                                @if($rItem->type=="mention")
+                                                                    <span class="ml-2"> mentioned you on this
+                                        @endif
+                                                                        @if($rItem->type=="comment-like")
+                                                                            <span class="ml-2"> like your comment on this
+                                        @endif
+
+                                                                                @if($rItem->type=="post-like")
+                                                                                    <span class="ml-2">like your
+                                        @endif
                                         <span class="text-green-1">confession</span>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="bg-white fs12 text-green-1">
-                                <p href="/category/corporis-sed-sit-rerum-omnis#" class="rounded-t py-2 px-6 block text-gray-700 mb-0">
-                                    <span class="fs16">Read</span>
-                                </p>
-                            </li>
-                            <li class="bg-white fs12 text-green-1 hover:bg-gray-400" style="margin-top: 1px">
-                                <div class="flex pl-2 hover:bg-gray-400">
-                                    <img src="/public/allimage/comment-noti.png"  class="mt-3" style="height:20px"/>
-                                    <a href="/category/corporis-sed-sit-rerum-omnis#" class="py-2 px-2 block">
-                                        <span class="text-green-1">Joe Bishop</span>
-                                        <span>replied to your comment on</span>
-                                        <span class="text-green-1"> Poll: Have you ever taken a sleeping pill to get to sleep?</span>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="bg-white fs12 text-green-1 hover:bg-gray-400" style="margin-top: 1px">
-                                <div class="flex pl-2 hover:bg-gray-400">
-                                    <img src="/public/allimage/comment-noti.png"  class="mt-3" style="height:20px"/>
-                                    <a href="/category/corporis-sed-sit-rerum-omnis#" class="py-2 px-2 block">
-                                        <span class="text-green-1">Joe Bishop</span>
-                                        <span>replied to your comment on</span>
-                                        <span class="text-green-1"> Poll: Have you ever taken a sleeping pill to get to sleep?</span>
-                                    </a>
-                                </div>
-                            </li>
-                            <li class="bg-white fs12 text-green-1 hover:bg-gray-400 text-center">
-                                <div class="pl-2 hover:bg-gray-400">
-                                    <a href="/category/corporis-sed-sit-rerum-omnis#" class="py-2 px-2 block">
-                                        <span class="text-green-1 font-weight-bold fs14" style="font-weight: bold">See all</span>
-                                    </a>
-                                </div>
-                            </li>
+                                            </a>
+                                        </div>
+                                    </li>
+                                @endif
+                                <li class="bg-white fs12 text-green-1">
+                                    <p href="/category/corporis-sed-sit-rerum-omnis#" class="rounded-t py-2 px-6 block text-gray-700 mb-0">
+                                        <span class="fs16">Read</span>
+                                    </p>
+                                </li>
+                                @if(isset($listRead[0]))
+                                    <li class="bg-white fs12 text-green-1 hover:bg-gray-400 noti-read" style="cursor: pointer">
+                                        @php $rItem = $listRead[0] @endphp
+                                        <div class="flex pl-2 hover:bg-gray-400" post-id="{{$rItem->id}}">
+                                            @if($rItem->type=="reply-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="post-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="mention")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="comment-like")
+                                                <img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            @if($rItem->type=="post-like")
+                                                <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            <a h class="py-2 px-2 block">
+                                                <span class="text-green-1">{{$rItem->username}}</span>
+
+                                                @if($rItem->type=="reply-comment")
+                                                    <span class="ml-2">replied to your comment on this
+                                        @endif
+                                                        @if($rItem->type=="post-comment")
+                                                            <span class="ml-2"> commented your
+                                        @endif
+                                                                @if($rItem->type=="mention")
+                                                                    <span class="ml-2"> mentioned you on this
+                                        @endif
+                                                                        @if($rItem->type=="comment-like")
+                                                                            <span class="ml-2"> like your comment on this
+                                        @endif
+
+                                                                                @if($rItem->type=="post-like")
+                                                                                    <span class="ml-2">like your
+                                        @endif
+                                        <span class="text-green-1">confession</span>
+                                            </a>
+                                        </div>
+                                    </li>
+                                @endif
+                                @if(isset($listRead[1]))
+                                    <li class="bg-white fs12 text-green-1 hover:bg-gray-400 noti-read" style="cursor: pointer">
+                                        @php $rItem = $listRead[1] @endphp
+                                        <div class="flex pl-2 hover:bg-gray-400" post-id="{{$rItem->id}}">
+                                            @if($rItem->type=="reply-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="post-comment")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="mention")
+                                                <img src="/public/allimage/comment-noti.png" class="mt-3" style="height:20px"/>
+                                            @endif
+                                            @if($rItem->type=="comment-like")
+                                                <img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            @if($rItem->type=="post-like")
+                                                <<img src="/public/allimage/felt.png"  class="mt-3" style="height:20px"/>
+                                            @endif
+
+                                            <a h class="py-2 px-2 block">
+                                                <span class="text-green-1">{{$rItem->username}}</span>
+
+                                                @if($rItem->type=="reply-comment")
+                                                    <span class="ml-2">replied to your comment on this
+                                        @endif
+                                                        @if($rItem->type=="post-comment")
+                                                            <span class="ml-2"> commented your
+                                        @endif
+                                                                @if($rItem->type=="mention")
+                                                                    <span class="ml-2"> mentioned you on this
+                                        @endif
+                                                                        @if($rItem->type=="comment-like")
+                                                                            <span class="ml-2"> like your comment on this
+                                        @endif
+
+                                                                                @if($rItem->type=="post-like")
+                                                                                    <span class="ml-2">like your
+                                        @endif
+                                        <span class="text-green-1">confession</span>
+                                            </a>
+                                        </div>
+                                    </li>
+                                @endif
+                            @endif
                         </ul>
                     </div>
                     <div class="pl-1 pr-1" class="dropdown relative inline-block">
@@ -225,25 +381,30 @@
                 </div>
             </div>
 
-            <div class="bgPicker bg-selector bg-white" id="bgPicker" style="width: 300px; height: 300px; z-index: 1051; top: 235px; left: -300px; display: block;">
-                <div class="sections" style="height: 260px;">
-                    <section class="search">
-                        <input type="search" placeholder="Search...">
-                        <div class="wrap" style="display:none;"><h1>Search Results</h1></div>
-                    </section>
-                    <div class="text-gray-600 fs15 pl-2"> Colors</div>
-                    <div class="px-2 flex">
-                        <img src="/public/images/backgrounds/Baby_Newborn_Smiling.png" >
-                        <img src="/public/images/backgrounds/Balloons_Party_Birthday.png" >
-                        <img src="/public/images/backgrounds/Beach_Boat.png" >
-                        <img src="/public/images/backgrounds/Bed_Couple.png" >
-                    </div>
-                    <div class="text-gray-600 fs15 pl-2"> Images</div>
-                    <div class="px-2 flex">
-                        <img src="/public/images/backgrounds/Baby_Newborn_Smiling.png" >
-                        <img src="/public/images/backgrounds/Balloons_Party_Birthday.png" >
-                        <img src="/public/images/backgrounds/Beach_Boat.png" >
-                        <img src="/public/images/backgrounds/Bed_Couple.png" >
+            @php
+                $colorList = \App\Model\BgImageColors::orderBy('id', 'asc')->limit(100)->get();
+                $bgImageList = \App\Model\BgImage::orderBy('id', 'asc')->limit(100)->get();
+            @endphp
+            <div class="bgPicker bg-selector bg-white" id="bgPicker-e" style="width: 380px; height: 430px; z-index: 1051; top: 200px; left: -380px; display: block;">
+                <div class="sections disable-scrollbars scroll-wrapper-t" style="height: 430px; overflow: scroll" >
+                    <div style="min-width: 330px; width: 360px">
+                        <section class="search p-2">
+                            <input type="search" placeholder="Search..." style="width:100%" class="border rounded bg-search">
+                            <div class="wrap" style="display:none;"><h1>Search Results</h1></div>
+                        </section>
+                        <div class="text-gray-600 fs15 pl-2 pb-2"> Colors</div>
+                        <div class="px-2 pb-2" style="min-height: 65px">
+                            @foreach($colorList as $itemcolor)
+                                <img class="inline-block pt-2" src="/{{$itemcolor->image}}" tag="{{$itemcolor->tag}}">
+                            @endforeach
+                        </div>
+
+                        <div class="text-gray-600 fs15 pl-2 py-2"> Images</div>
+                        <div class="px-2 pb-2" style="min-height: 65px">
+                            @foreach($bgImageList as $itembg)
+                                <img class="inline-block pt-2" src="/{{$itembg->image}}" tag="{{$itembg->tag}}">
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
@@ -836,19 +997,20 @@
                         var comment_count = $("#total_comment_cound");
                         var comment_count_no = parseInt(comment_count.html()) + 1;
                         comment_count.html(comment_count_no);
+                        var parts= data.split("[[]]]]");
                         $("#total_comment_cound_left").html(comment_count_no);
                         $("#comment-box-wrapper").prepend( '' +
-                            '<div class="comment-block" comment-id="' + data +'">'+
-                            '<div class="comment comment-l1" comment-id="' + data +'">'+
+                            '<div class="comment-block" comment-id="' + parts[0] +'">'+
+                            '<div class="comment comment-l1" comment-id="' + parts[0] +'">'+
                             '<div class="three-dot dropdown" style="position: absolute; right: -20px; top: -12px;">'+
                             '<a href="#" data-toggle="dropdown">'+
                             '<i data-target="#commentModal" class="fa fa-ellipsis-h text-gray-600 mt-3"></i>'+
                             '</a>'+
                             '<ul class="dropdown-menu text-green-1 dropdown-menu-center"  style="background-color: rgb(243, 243, 243); margin-top: -10px;">'+
-                            '<li class="bg-white fs12 text-green-1 edit-comment" comment-id="'+ data +'">'+
+                            '<li class="bg-white fs12 text-green-1 edit-comment" comment-id="'+ parts[0] +'">'+
                             '<a href="#" class="rounded-t hover:bg-gray-400 py-2 px-6 block whitespace-no-wrap text-green-1">edit</a>'+
                             '</li>'+
-                            '<li class="bg-white fs12 text-green-1 delete-comment" style="margin-top: 1px;" comment-id="'+ data +'">'+
+                            '<li class="bg-white fs12 text-green-1 delete-comment" style="margin-top: 1px;" comment-id="'+ parts[0] +'">'+
                             '<a href="#" class="rounded-t hover:bg-gray-400 py-2 px-6 block whitespace-no-wrap text-green-1">delete</a>'+
                             '</li>'+
                             '</ul>'+
@@ -858,13 +1020,13 @@
                             '<div class="cmt-content-infor ml-2" style="width: 300px;">'+
                             '<div class="cmt-content ml-2">'+
                             '<a href="/user/{{auth()->user()->username}}"><span class="font-bold text-green-1">{{auth()->user()->username}}</span> </a>'+
-                            '<span class="text-gray-600 comment-content">' + myParse($(".comment-input").first().val()) +'</span>'+
+                            '<span class="text-gray-600 comment-content">' + myParse(parts[1]) +'</span>'+
                             '</div>'+
                             ' <hr class="ml-2 my-2">'+
                             '<div class="flex ml-2 text-gray-600">'+
                             '<span style="width:200px"> 1 minutes ago </span> <span class="font-bold ml-6 reply" style="cursor:pointer"> Reply </span>'+
                             '<div class="flex ml-8">'+
-                            '<a href="#" class="like-button-comment flex" comment-id="'+ data +'">'+
+                            '<a href="#" class="like-button-comment flex" comment-id="'+ parts[0] +'">'+
                             '<span  class="text-gray-600"> ( </span><span class="like_count text-gray-600"> 0 </span><span class="text-gray-600"> ) </span>'+
                             '<img is-like="0" src="/public/allimage/feel.png" class="cmt-feel ml-2">'+
                             '</a>'+
@@ -962,18 +1124,19 @@
                             var comment_count = $("#total_comment_cound");
                             var comment_count_no = parseInt(comment_count.html()) + 1;
                             comment_count.html(comment_count_no);
+                            var parts= data.split("[[]]]]");
                             $("#total_comment_cound_left").html(comment_count_no);
                             childCommentBlock.append( '' +
-                                '<div class="comment comment-l2" comment-id="'+ data +'">'+
+                                '<div class="comment comment-l2" comment-id="'+ parts[0] +'">'+
                                 '<div class="three-dot dropdown" style="position: absolute; right: -20px; top: -12px;">'+
                                 '<a href="#" data-toggle="dropdown">'+
                                 '<i data-target="#commentModal" class="fa fa-ellipsis-h text-gray-600 mt-3"></i>'+
                                 '</a>'+
                                 '<ul class="dropdown-menu text-green-1 dropdown-menu-center"  style="background-color: rgb(243, 243, 243); margin-top: -10px;">'+
-                                '<li class="bg-white fs12 text-green-1 edit-comment" comment-id="'+ data +'">'+
+                                '<li class="bg-white fs12 text-green-1 edit-comment" comment-id="'+ parts[0] +'">'+
                                 '<a href="#" class="rounded-t hover:bg-gray-400 py-2 px-6 block whitespace-no-wrap text-green-1">edit</a>'+
                                 '</li>'+
-                                '<li class="bg-white fs12 text-green-1 delete-comment-child" style="margin-top: 1px;" comment-id="'+ data +'">'+
+                                '<li class="bg-white fs12 text-green-1 delete-comment-child" style="margin-top: 1px;" comment-id="'+ parts[0] +'">'+
                                 '<a href="#" class="rounded-t hover:bg-gray-400 py-2 px-6 block whitespace-no-wrap text-green-1">delete</a>'+
                                 '</li>'+
                                 '</ul>'+
@@ -983,13 +1146,13 @@
                                 '<div class="cmt-content-infor ml-2" style="width: 240px;">'+
                                 '<div class="cmt-content ml-2">'+
                                 '<a href="/user/{{auth()->user()->username}}"><span class="font-bold text-green-1">{{auth()->user()->username}}</span> </a>'+
-                                '<span class="text-gray-600 comment-content" >' + myParse($(".child-input-comment").first().val()) +'</span>'+
+                                '<span class="text-gray-600 comment-content" >' + myParse(parts[1]) +'</span>'+
                                 '</div>'+
                                 ' <hr class="ml-2 my-2">'+
                                 '<div class="flex ml-2 text-gray-600">'+
                                 '<span style="width:200px"> 1 minutes ago </span> <span class="font-bold ml-6 reply" style="cursor:pointer"> Reply </span>'+
                                 '<div class="flex ml-8">'+
-                                '<a href="#" class="like-button-comment flex" comment-id="'+ data +'">'+
+                                '<a href="#" class="like-button-comment flex" comment-id="'+ parts[0] +'">'+
                                 '<span  class="text-gray-600"> ( </span><span class="like_count text-gray-600"> 0 </span><span class="text-gray-600"> ) </span>'+
                                 '<img is-like="0" src="/public/allimage/feel.png" class="cmt-feel ml-2">'+
                                 '</a>'+

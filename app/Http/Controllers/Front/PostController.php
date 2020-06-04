@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Front;
 use App\Bulong\Users\User;
 use App\Model\Confession;
 use App\Model\Comment;
+use App\Model\Hashtag;
 use App\Model\Notification;
+use App\Model\Poll;
 use App\Model\ReportConfession;
+use App\Model\Stat;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class PostController extends Controller
 {
@@ -160,11 +164,41 @@ class PostController extends Controller
                         break;
                     }
                 }
-                $item->content = substr( $item->content,0, $i) . "<a class='tag-name' style='font-weight: bold; color: #0a0909 ' href='/user/" . $username. "'>" . $username . "</a>" . substr( $item->content,$i + $k, strlen($item->content));
+                $item->content = substr( $item->content,0, $i) . "<a class='tag-name' style='font-weight: bold;color: black' href='/user/" . $username. "'>" . $username . "</a>" . substr( $item->content,$i + $k, strlen($item->content));
 
             }
             $i++;
         }
+
+        $i = 0;
+        while($i < strlen($item->content)){
+            if($item->content[$i] == "#"){
+                $k=0;
+                for($j=$i+1 ; $j < strlen($item->content) ; $j++){
+                    $k++;
+                    if($item->content[$j] == " "){
+                        $tagName = substr( $item->content,$i+1, $k-1);
+
+                        $hashTag = Hashtag::query()->where("name","=",$tagName)->first();
+                        if(isset($hashTag)){
+                            $hashTag->count++;
+                        }else{
+                            $hashTag = new Hashtag;
+                            $hashTag->name = $tagName;
+                            $hashTag->count = 1;
+                        }
+                        $hashTag->save();
+                        break;
+                    }
+                }
+                $add = "<a class='tag-name' style='font-weight: bold; font-family: Helvetica Neue ;color: black;' href='/search-hashtag/" . $tagName. "'>" . "#" . $tagName . "</a>";
+                $item->content = substr( $item->content,0, $i) . $add . substr( $item->content,$i + $k, strlen($item->content));
+                $i+= strlen($add);
+            }
+            $i++;
+
+        }
+
         $item->save();
 
         $confession->comment_count ++;
@@ -174,15 +208,32 @@ class PostController extends Controller
         $notification = new Notification;
         if($item->parent_id == 0) {
             $notification->type = "post-comment";
+
+            $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new Stat;
+            }
+            $stas->comment_today ++;
+            $stas->save();
+
         }else{
             $notification->type = "reply-comment";
+
+            $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new Stat;
+            }
+            $stas->replies_today ++;
+            $stas->save();
         }
         $notification->from_user_id = auth()->user()->id;
         $notification->to_user_id = $confession->user_id;
         $notification->confession_id = $confession->id;
         $notification->save();
 
-        return $item->id;
+        $data = new stdClass;
+        $str = $item->id . "[[]]]]" . $item->content;
+        return $str;
     }
 
     public function editComment(Request $request){
@@ -210,6 +261,14 @@ class PostController extends Controller
             $confession->comment_count --;
         }
         $confession->save();
+
+        $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+        if(!isset($stas)){
+            $stas = new Stat;
+        }
+        $stas->feel_today --;
+        $stas->save();
+
     }
 
     public function reportAdd(Request $request){
@@ -219,7 +278,36 @@ class PostController extends Controller
         $item->details = $request->report_details;
         $item->user_id = auth()->user()->id;
         $item->save();
+
+        $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+        if(!isset($stas)){
+            $stas = new Stat;
+        }
+        $stas->report_today ++;
+        $stas->save();
+
         return redirect()->route('post', $request->confession_id);
 
+    }
+
+    public function share(Request $request){
+        $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+        if(!isset($stas)){
+            $stas = new Stat;
+        }
+        $stas->share_today ++;
+        $stas->save();
+    }
+
+    public function rate(Request $request){
+        $poll = Poll::find($request->id);
+
+        if($request->select == 1){
+            $poll->poll1_count ++;
+        }
+        if($request->select == 2){
+            $poll->poll2_count ++;
+        }
+        $poll->save();
     }
 }

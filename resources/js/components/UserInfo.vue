@@ -3,8 +3,8 @@
         <img :src="user.profile_picture" class="w-10 h-10 rounded-full">
         <h1 class="mt-1 text-gray-700 text-sm">@{{ user.username }}</h1>
         <div v-if="user.id != $gate.userId()">
-            <button @click.prevent="follow(user)" class="my-1 px-6 text-sm text-white bg-yellow-600 rounded" v-if="!isFollowing">Follow</button>
-            <button @click.prevent="follow(user)" class="my-1 px-6 text-sm text-white bg-gray-600 rounded" v-if="isFollowing">Unfollow</button>
+            <button @click.prevent="follow(user)" class="my-1 px-6 text-sm text-white bg-gray-500 rounded" v-if="!isFollowing">Follow</button>
+            <button @click.prevent="follow(user)" class="my-1 px-6 text-sm text-white bg-gray-500 rounded" v-if="isFollowing">Unfollow</button>
         </div>
         <h3 class="text-sm font-bold">{{ totalFollowers }} Followers</h3>
     </div>

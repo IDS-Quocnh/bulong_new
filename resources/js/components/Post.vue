@@ -15,11 +15,11 @@
                         <div style="text-align: center"><a :href="'/user/' + item.username"
                                                            class="text-teal-600 font-bold mr-1 text-green-1">{{ item.username }}</a></div>
                         <div>
-                            <button class="px-6 follow-wrapper no-glow text-sm text-white bg-yellow-600 rounded" is-follow="1" :id="'button-follow-' + item.id" :user-id="item.user_id" v-if="item.is_follow > 0">
+                            <button class="px-6 follow-wrapper no-glow text-sm text-white bg-gray-500 rounded" is-follow="1" :id="'button-follow-' + item.id" :user-id="item.user_id" v-if="item.is_follow > 0">
                                 Unfollow
                             </button>
 
-                            <button class="px-6 follow-wrapper no-glow text-sm text-white bg-yellow-600 rounded" is-follow="0" :id="'button-follow-' + item.id"  :user-id="item.user_id" v-if="item.is_follow == 0">
+                            <button class="px-6 follow-wrapper no-glow text-sm text-white bg-gray-500 rounded" is-follow="0" :id="'button-follow-' + item.id"  :user-id="item.user_id" v-if="item.is_follow == 0">
                                 Follow
                             </button>
                         </div>

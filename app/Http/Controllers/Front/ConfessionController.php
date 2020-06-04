@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Model\Hashtag;
+use App\Model\Notification;
 use App\Model\Poll;
+use App\Model\Stat;
 use Carbon\Carbon;
 use App\Model\Confession;
 use App\Bulong\Feeds\Feed;
 use Illuminate\Http\Request;
 use App\Traits\ApiJsonResponse;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class ConfessionController extends Controller
 {
@@ -111,10 +115,79 @@ class ConfessionController extends Controller
     {
         if ($request->isMethod('post')) {
             $item = new Confession;
+
             $item->setAttributeMap($request->all());
             $item->user_id = auth()->user()->id;
             $item->username = auth()->user()->username;
+
             $item->save();
+
+            $confession = Confession::find($item->id);
+            $item->text = strip_tags($item->text);
+            $item->text = $item->text . " ";
+            $i = 0;
+            while($i < strlen($item->text)){
+                if($item->text[$i] == "@"){
+                    $k=0;
+                    for($j=$i+1 ; $j < strlen($item->text) ; $j++){
+                        $k++;
+                        if($item->text[$j] == " "){
+                            $username = substr( $item->text,$i+1, $k-1);
+                            $notification = new Notification;
+                            $notification->type = "mention";
+                            $notification->from_user_id = auth()->user()->id;
+                            $user = \App\Model\User::where("username","=",$username)->first();
+                            $notification->to_user_id = $user->id;
+                            $notification->confession_id = $confession->id;
+                            $notification->save();
+                            break;
+                        }
+                    }
+                    $item->text = substr( $item->text,0, $i) . "<a class='tag-name' style='font-weight: bold;color: black' href='/user/" . $username. "'>" . $username . "</a>" . substr( $item->text,$i + $k, strlen($item->text));
+
+                }
+                $i++;
+            }
+
+            $i = 0;
+            while($i < strlen($item->text)){
+                if($item->text[$i] == "#"){
+                    $k=0;
+                    for($j=$i+1 ; $j < strlen($item->text) ; $j++){
+                        $k++;
+                        if($item->text[$j] == " "){
+                            $tagName = substr( $item->text,$i+1, $k-1);
+
+                            $hashTag = Hashtag::query()->where("name","=",$tagName)->first();
+                            if(isset($hashTag)){
+                                $hashTag->count++;
+                            }else{
+                                $hashTag = new Hashtag;
+                                $hashTag->name = $tagName;
+                                $hashTag->count = 1;
+                            }
+                            $hashTag->save();
+                            break;
+                        }
+                    }
+                    $add = "<a class='tag-name' style='font-weight: bold; font-family: Helvetica Neue ;color: black;' href='/search-hashtag/" . $tagName. "'>" . "#" . $tagName . "</a>";
+                    $item->text = substr( $item->text,0, $i) . $add . substr( $item->text,$i + $k, strlen($item->text));
+                    $i+= strlen($add);
+                }
+                $i++;
+
+            }
+
+
+
+            $item->save();
+            $stas = Stat::query()->whereRaw( DB::raw('DATE(created_at) = curdate()'))->first();
+            if(!isset($stas)){
+                $stas = new Stat;
+            }
+            $stas->post_today ++;
+            $stas->save();
+
             return redirect()->route('lastest');
         } else {
             return redirect()->route('lastest');
@@ -136,7 +209,7 @@ class ConfessionController extends Controller
     public function delete(Request $request)
     {
         $item = Confession::find($request->confession_id);
-        if($item->username == auth()->user()->username){
+        if($item->username == auth()->user()->username || auth()->user()->is_admin == 1){
             $item->delete();
         }
         return redirect()->route('home');

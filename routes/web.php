@@ -43,6 +43,9 @@ Route::group(['namespace' => 'Front', 'middleware' => 'auth'], function () {
     Route::get('search-hashtag/{name}', 'SearchController@hashTag')->name('search-hashtag');
     Route::get('search-user', 'SearchController@user')->name('search-user');
     Route::get('search-list-hashtag', 'SearchController@hashTagList')->name('search-hashtag');
+    Route::post('poll/rate', 'PostController@rate')->name('poll/rate');
+    Route::post('/share/add', 'PostController@share')->name('/share/add');
+
 
 
     Route::get('user-edit', 'UserConfessionController@index')->name('user-edit');
@@ -70,6 +73,9 @@ Route::group(['namespace' => 'Front', 'middleware' => 'auth'], function () {
 
 });
 Route::group(['namespace' => 'Admin', 'middleware' => 'auth'], function () {
+
+    Route::post('/report/delete', 'ManageReportConfessionController@delete')->name('/report/delete');
+
     Route::get('admincp', 'DashboardController@index')->name('admincp');
     Route::get('site-setting', 'SiteSettingController@index')->name('site-setting');
 

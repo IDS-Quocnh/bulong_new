@@ -73,7 +73,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group{{ $errors->has('poll3') ? ' has-error' : '' }}">
+                        {{--<div class="form-group{{ $errors->has('poll3') ? ' has-error' : '' }}">
                             <label for="name" class="col-md-4 control-label">Poll  choice 3 (optional)</label>
 
                             <div class="col-md-6">
@@ -127,7 +127,61 @@
                                     </span>
                                 @endif
                             </div>
+                        </div>--}}{{--<div class="form-group{{ $errors->has('poll3') ? ' has-error' : '' }}">
+                            <label for="name" class="col-md-4 control-label">Poll  choice 3 (optional)</label>
+
+                            <div class="col-md-6">
+                                <input id="poll3" type="text" class="form-control" name="poll3" value="{{isset($item) ? $item->poll3 : ''}}">
+
+                                @if ($errors->has('poll3'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('poll3') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
                         </div>
+
+                        <div class="form-group{{ $errors->has('poll4') ? ' has-error' : '' }}">
+                            <label for="name" class="col-md-4 control-label">Poll  choice 4 (optional)</label>
+
+                            <div class="col-md-6">
+                                <input id="poll4" type="text" class="form-control" name="poll4" value="{{isset($item) ? $item->poll4 : ''}}">
+
+                                @if ($errors->has('poll4'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('poll4') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('poll5') ? ' has-error' : '' }}">
+                            <label for="name" class="col-md-4 control-label">Poll  choice 5 (optional)</label>
+
+                            <div class="col-md-6">
+                                <input id="poll5" type="text" class="form-control" name="poll5" value="{{isset($item) ? $item->poll5 : ''}}">
+
+                                @if ($errors->has('poll5'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('poll5') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group{{ $errors->has('poll6') ? ' has-error' : '' }}">
+                            <label for="name" class="col-md-4 control-label">Poll  choice 6 (optional)</label>
+
+                            <div class="col-md-6">
+                                <input id="poll6" type="text" class="form-control" name="poll6" value="{{isset($item) ? $item->poll6 : ''}}">
+
+                                @if ($errors->has('poll6'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('poll6') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                        </div>--}}
 
                         <div class="form-group{{ $errors->has('active') ? ' has-error' : '' }}">
                             <label for="active" class="col-md-4 control-label">Active</label>

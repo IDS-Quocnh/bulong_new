@@ -49,7 +49,7 @@
                             <label class="col-form-label ml-2 col-lg-12">Please select image for the category </label>
                             <div class="col-lg-12 ml-2">
                                 <input id="file" type="file" name="image" value=""
-                                       class="form-control h-auto" {{ isset($item) ? '' : 'required'}}  accept="image/x-png,image/gif,image/jpeg"  />
+                                       class="form-control h-auto" {{ isset($item) ? '' : 'required'}}  accept="image/x-png,image/gif,image/jpeg" />
 
                             </div>
                         </div>

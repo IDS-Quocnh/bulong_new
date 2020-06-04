@@ -3,35 +3,9 @@
 @section('content')
 <nav aria-label="breadcrumb" class="pt-2">
     <ol class="breadcrumb bg-light">
-        Data Center List
+        On process
     </ol>
 </nav>
-@if(Auth::user()->is_admin == 1)
-    <a href="{{route('datacenter/add')}}" type="button" class="btn btn-success" style="margin-bottom: 15px;">Add New</a>
-@endif
-@if(isset($susscessMessage))
-<div class="alert alert-success" role="alert">
-    {{$susscessMessage}}
-</div>
-@endif
-@if(isset($dangerMessage))
-<div class="alert alert-danger" role="alert">
-    {{$dangerMessage}}
-</div>
-@endif
-@if(isset($warningMessage))
-<div class="alert alert-warning" role="alert">
-    {{$warningMessage}}
-</div>
-@endif
-<link href="{{ asset('assets/blacktheme/atom.css') }}" rel="stylesheet">
-<link href="{{ asset('assets/blacktheme/led_lights.css') }}" rel="stylesheet">
-<div class="row" style="margin-bottom: 15px">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            abcs
-        </div>
-    </div>
-</div>
+
 
 @endsection

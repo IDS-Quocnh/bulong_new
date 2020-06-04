@@ -40,7 +40,7 @@
             <div class="flex flex-col" style="position:relative">
                 <div>
                     <span>Birthday </span>
-                    <input v-model="form.birthday" type="date" class="mb-3 p-2  border-2 rounded placedatepicker" style="width: 252px" />
+                    <input v-model="form.birthday" type="date" class="mb-3 p-2  border-2 rounded placedatepicker" style="width: 252px;padding-right:30px" />
                 </div>
 
                 <div class="tooltip-main tooltip" data-toggle="tooltip" data-placement="top" title="“Why are you asking for my birthday?” Use of the Bulong website/service is only for people age 18+ so we need this to verify your age" style="right: -110px; top: 7px; position:absolute">
